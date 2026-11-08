@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><radialGradient id="g" cx="35%" cy="25%"><stop stop-color="#fff0b0"/><stop offset=".52" stop-color="#d8ad45"/><stop offset="1" stop-color="#6f4d10"/></radialGradient></defs>
+<circle cx="256" cy="256" r="225" fill="#090909" stroke="#d8ad45" stroke-width="12"/>
+<path d="M155 144l-18-65 62 39 57-69 57 69 62-39-18 65" fill="url(#g)" stroke="#f7df91" stroke-width="9" stroke-linejoin="round"/>
+<circle cx="256" cy="270" r="130" fill="url(#g)" stroke="#f7df91" stroke-width="8"/>
+<path d="M256 174l38 28-14 45h-48l-14-45z M164 247l44 0 14 43-35 27-38-27z M304 290l14-43h44l15 43-38 27z M219 335l37-27 37 27-14 45h-46z" fill="#17120a" stroke="#17120a" stroke-width="7" stroke-linejoin="round"/>
+<text x="256" y="462" fill="#e7c15e" font-family="Arial,sans-serif" font-size="44" font-weight="bold" text-anchor="middle" letter-spacing="3">ARJ</text>
+</svg>

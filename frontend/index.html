@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARJBETT | Football Analytics</title>
+<style>
+:root{--bg:#080808;--panel:#141414;--panel2:#1d1a12;--line:#6d5420;--txt:#f7f1df;--muted:#b8ad91;--green:#d8ad45;--lime:#f3d47a;--amber:#eac04f;--red:#ff8d82}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#35280d 0,transparent 36%),var(--bg);color:var(--txt);font-family:Tahoma,Arial,sans-serif}
+header{padding:22px clamp(16px,4vw,52px);display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid #f6d77e;box-shadow:0 0 20px #c99b3566;background:#090909}.brand h1{margin:0;font-size:21px}.brand p{margin:5px 0 0;color:var(--muted);font-size:11px}
+.pill{padding:8px 12px;border:1px solid #326b50;border-radius:30px;color:var(--green);font-size:11px}
+main{max-width:1200px;margin:auto;padding:28px 18px 50px}.intro{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:20px}.intro h2{margin:0 0 8px;font-size:clamp(22px,4vw,32px)}.intro p{margin:0;color:var(--muted);font-size:12px;line-height:1.9}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:10px;background:var(--green);color:#06140d;font-weight:bold;padding:11px 15px;cursor:pointer}.btn.secondary{background:#1b3027;color:var(--txt);border:1px solid var(--line)}.btn:disabled{opacity:.55;cursor:wait}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:linear-gradient(155deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:17px;padding:17px;min-width:0}.s12{grid-column:span 12}.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}
+h3{font-size:14px;margin:0 0 14px}.muted,.hint{color:var(--muted)}.hint{font-size:11px;line-height:1.8}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+input,select{background:#0b1712;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit;font-size:12px;min-width:0}input[type=date]{direction:ltr}input[type=file]{max-width:100%}
+label{font-size:11px;color:var(--muted);display:block;margin-bottom:6px}.field{flex:1;min-width:145px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.kpi{padding:13px;border-radius:12px;background:#0b1712;border:1px solid var(--line)}.kpi strong{display:block;color:var(--lime);font-size:22px;margin-bottom:5px}.kpi span{font-size:10px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:11px}th,td{padding:11px 7px;border-bottom:1px solid var(--line);text-align:right}th{color:var(--muted);font-weight:500}td.score{text-align:center;font-weight:bold;direction:ltr}
+.tag{font-size:10px;padding:5px 8px;border-radius:20px;background:#20392d;color:var(--green)}.tag.warn{background:#3a3320;color:var(--amber)}.tag.bad{background:#402724;color:var(--red)}
+.empty{padding:22px;text-align:center;color:var(--muted);font-size:12px}.scroll{overflow:auto}
+.notice{padding:12px;border:1px solid #315440;background:#14261d;border-radius:11px;font-size:11px;line-height:1.9;color:#bdd9c8;margin-top:12px}
+#message{font-size:11px;color:var(--muted);margin-top:10px;min-height:18px}
+.bar{height:8px;border-radius:20px;background:#283c32;overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;background:var(--green)}
+canvas{width:100%;height:180px;display:block}
+footer{text-align:center;padding:22px;color:#70877a;font-size:10px}
+@media(max-width:780px){.s8,.s6,.s4{grid-column:span 12}.kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="brand"><img class="logo" src="/frontend/arjbett-avatar.jpg" alt="لوگوی ARJBETT با پرتره تاج‌دار" /><div><h1>ARJBETT</h1><p>FOOTBALL ANALYTICS · PERFORMANCE INTELLIGENCE</p></div></div><span class="pill" id="apiStatus">● در انتظار اتصال به سرور</span></header>
+<main>
+<div class="intro"><div><h2>داشبورد تحلیل عملکرد فوتبال</h2><p>داده مسابقات، فرم تیم‌ها و روند عملکرد را بررسی کن.<br>این ابزار برای تحلیل ورزشی و آموزشی است؛ نه توصیه شرط‌بندی یا پیش‌بینی نتیجه.</p></div>
+<div class="actions"><button class="btn" id="refreshBtn">به‌روزرسانی داده‌ها</button><button class="btn secondary" id="demoBtn">نمایش داده نمونه</button></div></div>
+<div class="grid">
+<section class="card s12"><h3>فیلتر مسابقات</h3><div class="row">
+<div class="field"><label>مسابقات</label><select id="competition"><option value="PL">Premier League</option><option value="PD">La Liga</option><option value="BL1">Bundesliga</option><option value="SA">Serie A</option><option value="FL1">Ligue 1</option><option value="CL">Champions League</option></select></div>
+<div class="field"><label>از تاریخ</label><input id="dateFrom" type="date"></div><div class="field"><label>تا تاریخ</label><input id="dateTo" type="date"></div>
+<div class="field"><label>تیم برای تحلیل فرم</label><select id="teamSelect"><option value="">ابتدا داده‌ها را بارگذاری کن</option></select></div></div><div id="message"></div></section>
+<section class="card s8"><h3>مسابقات دریافت‌شده</h3><div class="scroll"><table><thead><tr><th>تاریخ</th><th>رقابت</th><th>میزبان</th><th>نتیجه</th><th>میهمان</th><th>وضعیت</th></tr></thead><tbody id="matchesBody"><tr><td colspan="6" class="empty">هنوز داده‌ای دریافت نشده است.</td></tr></tbody></table></div></section>
+<section class="card s4"><h3>خلاصه داده‌ها</h3><div class="kpis" style="grid-template-columns:repeat(2,1fr)">
+<div class="kpi"><strong id="matchCount">0</strong><span>مسابقات ذخیره‌شده</span></div><div class="kpi"><strong id="teamCount">0</strong><span>تیم‌های شناسایی‌شده</span></div><div class="kpi"><strong id="playedCount">0</strong><span>مسابقات پایان‌یافته</span></div><div class="kpi"><strong id="goalCount">—</strong><span>گل‌های ثبت‌شده</span></div></div><p class="hint" style="margin-top:12px">آمار با داده‌های دریافت‌شده از API یا فایل CSV محاسبه می‌شود.</p></section>
+<section class="card s6"><h3>فرم پنج مسابقه اخیر</h3><div id="formSummary" class="empty">یک تیم انتخاب کن.</div><canvas id="formChart" width="600" height="200"></canvas></section>
+<section class="card s6"><h3>تحلیل روند عملکرد</h3><div id="trendSummary" class="empty">پس از بارگذاری تاریخچه کافی، روند نمایش داده می‌شود.</div><div class="notice">روند فقط از مقایسه امتیازهای ثبت‌شده در دو بازه تاریخی محاسبه می‌شود؛ این شاخص پیش‌بینی نتیجه مسابقه آینده نیست.</div></section>
+
+<section class="card s12">
+<h3>مقایسه تاریخی دو تیم</h3>
+<p class="hint">دو تیم را انتخاب کن تا فرم اخیر، آمار رودررو و میانگین گل‌هایشان بر اساس مسابقات ثبت‌شده مقایسه شود. این بخش نتیجه مسابقه آینده را پیش‌بینی نمی‌کند.</p>
+<div class="row">
+  <div class="field"><label>تیم اول</label><select id="compareA"><option value="">انتخاب تیم اول...</option></select></div>
+  <div class="field"><label>تیم دوم</label><select id="compareB"><option value="">انتخاب تیم دوم...</option></select></div>
+  <div><label>&nbsp;</label><button class="btn" id="compareBtn">مقایسه تیم‌ها</button></div>
+</div>
+<div id="compareSummary" class="empty">پس از بارگذاری داده‌ها، دو تیم را انتخاب کن.</div>
+<div class="grid" style="margin-top:12px">
+  <div class="card s6"><h3 id="compareTitleA">عملکرد تیم اول</h3><div id="compareFormA" class="empty">—</div></div>
+  <div class="card s6"><h3 id="compareTitleB">عملکرد تیم دوم</h3><div id="compareFormB" class="empty">—</div></div>
+  <div class="card s12"><h3>دیدارهای رودررو</h3><div class="scroll"><table><thead><tr><th>تاریخ</th><th>میزبان</th><th>نتیجه</th><th>میهمان</th></tr></thead><tbody id="h2hBody"><tr><td colspan="4" class="empty">هنوز مقایسه‌ای انجام نشده است.</td></tr></tbody></table></div></div>
+</div>
+</section>
+
+<section class="card s12"><h3>ورود اطلاعات از فایل CSV</h3><p class="hint">ستون‌های موردنیاز: date, competition, home_team, away_team, home_goals, away_goals, status. فایل CSV با UTF-8 ذخیره شود.</p><div class="row"><input type="file" id="csvFile" accept=".csv,text/csv"><button class="btn" id="uploadBtn">بارگذاری در پایگاه داده</button></div><div id="uploadMessage" class="hint" style="margin-top:10px"></div></section>
+</div>
+<div class="notice">برای استفاده بدون API، فایل CSV خودت را وارد کن یا داده نمونه را ببین. اتصال زنده اختیاری است و در صورت استفاده، کلید فقط روی سرور ذخیره می‌شود. داده نمونه واقعی نیست و با برچسب مشخص می‌شود.</div>
+</main><footer>ARJBETT · ابزار تحلیل ورزشی آموزشی · بدون توصیه شرط‌بندی</footer>
+<script>
+const $=id=>document.getElementById(id);let allMatches=[],demo=false;
+const today=new Date(),iso=d=>d.toISOString().slice(0,10);$('dateTo').value=iso(today);$('dateFrom').value=iso(new Date(today-365*86400000));
+function say(t){$('message').textContent=t}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){
+ $('matchCount').textContent=allMatches.length;
+ const teams=[...new Set(allMatches.flatMap(m=>[m.homeTeam,m.awayTeam]).filter(Boolean))].sort();
+ $('teamCount').textContent=teams.length;
+ const done=allMatches.filter(m=>m.status==='FINISHED'&&Number.isFinite(m.homeGoals)&&Number.isFinite(m.awayGoals));
+ $('playedCount').textContent=done.length;
+ $('goalCount').textContent=done.reduce((s,m)=>s+m.homeGoals+m.awayGoals,0);
+ $('matchesBody').innerHTML=allMatches.length?allMatches.slice(0,100).map(m=>`<tr><td>${esc((m.date||'').slice(0,10))}</td><td>${esc(m.competition||'—')}</td><td>${esc(m.homeTeam)}</td><td class="score">${m.homeGoals??'–'} : ${m.awayGoals??'–'}</td><td>${esc(m.awayTeam)}</td><td><span class="tag ${m.status==='FINISHED'?'':'warn'}">${esc(m.status||'نامشخص')}</span></td></tr>`).join(''):'<tr><td colspan="6" class="empty">مسابقه‌ای پیدا نشد.</td></tr>';
+ const old=$('teamSelect').value;
+ $('teamSelect').innerHTML='<option value="">انتخاب تیم...</option>'+teams.map(t=>`<option>${esc(t)}</option>`).join('');
+ if(teams.includes(old))$('teamSelect').value=old;
+ const ca=$('compareA').value, cb=$('compareB').value;
+ const options='<option value="">انتخاب تیم...</option>'+teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+ $('compareA').innerHTML=options; $('compareB').innerHTML=options;
+ if(teams.includes(ca))$('compareA').value=ca;
+ if(teams.includes(cb))$('compareB').value=cb;
+ $('apiStatus').textContent=demo?'● داده نمونه':'● داده‌های ذخیره‌شده';
+ $('apiStatus').style.color=demo?'#eacb77':'#4cdb9b';
+}
+function showTeam(){
+ const name=$('teamSelect').value;if(!name)return;
+ const history=allMatches.filter(m=>m.status==='FINISHED'&&Number.isFinite(m.homeGoals)&&Number.isFinite(m.awayGoals)&&(m.homeTeam===name||m.awayTeam===name)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ const last=history.slice(-5);if(!last.length){$('formSummary').textContent='برای این تیم نتیجه پایان‌یافته ثبت نشده است.';$('trendSummary').textContent='داده کافی نیست.';return}
+ const pts=last.map(m=>{let h=m.homeTeam===name, gf=h?m.homeGoals:m.awayGoals,ga=h?m.awayGoals:m.homeGoals;return {gf,ga,p:gf>ga?3:gf===ga?1:0,date:m.date}});
+ const total=pts.reduce((s,x)=>s+x.p,0),gf=pts.reduce((s,x)=>s+x.gf,0),ga=pts.reduce((s,x)=>s+x.ga,0);
+ $('formSummary').innerHTML=`<b>${esc(name)}</b><p class="hint">۵ بازی اخیر · ${total} امتیاز از ۱۵ · ${gf} گل زده · ${ga} گل خورده</p><div class="row">${pts.map(x=>`<span class="tag ${x.p===3?'':x.p===1?'warn':'bad'}">${x.p===3?'برد':x.p===1?'مساوی':'باخت'}</span>`).join('')}</div>`;
+ draw(pts.map(x=>x.p*33.33));
+ const previous=history.slice(-10,-5),prevPts=previous.reduce((s,m)=>{let h=m.homeTeam===name,gf=h?m.homeGoals:m.awayGoals,ga=h?m.awayGoals:m.homeGoals;return s+(gf>ga?3:gf===ga?1:0)},0);
+ if(previous.length<5){$('trendSummary').textContent='برای ارزیابی روند به حداقل ۱۰ مسابقه پایان‌یافته نیاز است.';return}
+ const delta=total-prevPts,tag=delta>=3?'روند امتیازگیری بهتر شده':delta<=-3?'روند امتیازگیری افت کرده':'روند نسبتاً باثبات است';
+ $('trendSummary').innerHTML=`<b>${tag}</b><p class="hint">امتیاز پنج بازی اخیر: ${total} از ۱۵<br>امتیاز پنج بازی قبل: ${prevPts} از ۱۵<br>تغییر امتیاز: ${delta>0?'+':''}${delta}</p><span class="tag">${delta>=3?'بهبود':delta<=-3?'افت':'ثبات'}</span><p class="hint">این جمع‌بندی توصیفی است و درباره نتیجه بازی بعدی ادعایی ندارد.</p>`;
+}
+function draw(vals){const c=$('formChart'),x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);x.strokeStyle='#294238';for(let y=30;y<190;y+=40){x.beginPath();x.moveTo(30,y);x.lineTo(580,y);x.stroke()}x.strokeStyle='#4cdb9b';x.lineWidth=4;x.beginPath();vals.forEach((v,i)=>{let px=55+i*120,py=175-v*1.35;i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke();vals.forEach((v,i)=>{let px=55+i*120,py=175-v*1.35;x.fillStyle='#c1f28a';x.beginPath();x.arc(px,py,5,0,7);x.fill()})}
+async function load(){
+ demo=false;$('refreshBtn').disabled=true;say('در حال خواندن داده‌های ذخیره‌شده...');
+ try{
+   let health=await fetch('/api/health').then(r=>r.json()).catch(()=>({api_token_configured:false}));
+   let syncNote='بدون اتصال زنده؛ داده‌های ذخیره‌شده نمایش داده شدند.';
+   if(health.api_token_configured){
+     let syncQ=new URLSearchParams({competition:$('competition').value,date_from:$('dateFrom').value,date_to:$('dateTo').value});
+     let syncRes=await fetch('/api/sync?'+syncQ,{method:'POST'});
+     let syncData=await syncRes.json();
+     syncNote=syncRes.ok?`${syncData.received} مسابقه از منبع داده دریافت شد.`:`همگام‌سازی زنده انجام نشد: ${syncData.detail||'خطای API'}`;
+   }
+   let q=new URLSearchParams({competition:$('competition').value,date_from:$('dateFrom').value,date_to:$('dateTo').value});
+   let r=await fetch('/api/matches?'+q);let j=await r.json();
+   if(!r.ok)throw Error(j.detail||'خطا در دریافت داده');
+   allMatches=j.matches||[];render();say(`${syncNote} ${allMatches.length} رکورد در بازه انتخابی موجود است.`);
+ }catch(e){say('اتصال به سرور برقرار نشد: '+e.message+' · سرور را اجرا کن یا داده نمونه را ببین.')}
+ finally{$('refreshBtn').disabled=false}
+}
+async function upload(){const f=$('csvFile').files[0];if(!f){$('uploadMessage').textContent='ابتدا فایل CSV را انتخاب کن.';return}let fd=new FormData();fd.append('file',f);$('uploadMessage').textContent='در حال بارگذاری...';try{let r=await fetch('/api/import/csv',{method:'POST',body:fd});let j=await r.json();if(!r.ok)throw Error(j.detail||'خطا');$('uploadMessage').textContent=`${j.inserted} ردیف جدید ذخیره شد.`;await load()}catch(e){$('uploadMessage').textContent='خطا: '+e.message}}
+function sample(){demo=true;const names=['Arsenal','Chelsea','Liverpool','Manchester City','Tottenham'];allMatches=[];for(let i=0;i<24;i++){let h=names[i%5],a=names[(i*2+1)%5];if(h===a)a=names[(i+2)%5];let hg=(i*7+2)%4,ag=(i*3+1)%3;let d=new Date(Date.now()-(24-i)*86400000).toISOString();allMatches.push({date:d,competition:'Demo League',homeTeam:h,awayTeam:a,homeGoals:hg,awayGoals:ag,status:'FINISHED'})}render();say('داده نمونه بارگذاری شد؛ این نتایج واقعی نیستند.')}
+
+function teamHistory(name){
+ return allMatches.filter(m=>m.status==='FINISHED'&&Number.isFinite(m.homeGoals)&&Number.isFinite(m.awayGoals)&&(m.homeTeam===name||m.awayTeam===name))
+ .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+}
+function summarizeTeam(name){
+ const hist=teamHistory(name), last=hist.slice(-5);
+ let w=0,d=0,l=0,gf=0,ga=0,pts=0;
+ const rows=last.map(m=>{
+   const home=m.homeTeam===name, f=home?m.homeGoals:m.awayGoals, a=home?m.awayGoals:m.homeGoals;
+   gf+=f;ga+=a;
+   const result=f>a?'برد':f===a?'مساوی':'باخت';
+   if(f>a){w++;pts+=3}else if(f===a){d++;pts++}else l++;
+   return `<tr><td>${esc((m.date||'').slice(0,10))}</td><td>${home?'میزبان':'میهمان'}</td><td class="score">${f} : ${a}</td><td><span class="tag ${result==='برد'?'':result==='مساوی'?'warn':'bad'}">${result}</span></td></tr>`;
+ });
+ return {hist,last,w,d,l,gf,ga,pts,rows};
+}
+function compareTeams(){
+ const a=$('compareA').value,b=$('compareB').value;
+ if(!a||!b){$('compareSummary').textContent='لطفاً هر دو تیم را انتخاب کن.';return}
+ if(a===b){$('compareSummary').textContent='برای مقایسه، دو تیم متفاوت انتخاب کن.';return}
+ const A=summarizeTeam(a),B=summarizeTeam(b);
+ $('compareTitleA').textContent=a;$('compareTitleB').textContent=b;
+ const box=(x)=>x.last.length?`
+ <p class="hint">۵ بازی اخیر (یا تعداد موجود): ${x.last.length} مسابقه</p>
+ <div class="kpis"><div class="kpi"><strong>${x.w}</strong><span>برد</span></div><div class="kpi"><strong>${x.d}</strong><span>مساوی</span></div><div class="kpi"><strong>${x.l}</strong><span>باخت</span></div><div class="kpi"><strong>${x.pts}</strong><span>امتیاز</span></div></div>
+ <p class="hint">گل زده: ${x.gf} · گل خورده: ${x.ga} · میانگین گل زده در هر بازی: ${(x.gf/x.last.length).toFixed(2)}</p>
+ <div class="scroll"><table><thead><tr><th>تاریخ</th><th>موقعیت</th><th>گل زده : خورده</th><th>نتیجه</th></tr></thead><tbody>${x.rows.join('')}</tbody></table></div>`
+ :'<p class="hint">اطلاعات کافی برای این تیم در داده‌های فعلی وجود ندارد.</p>';
+ $('compareFormA').innerHTML=box(A);$('compareFormB').innerHTML=box(B);
+ const h2h=allMatches.filter(m=>m.status==='FINISHED'&&Number.isFinite(m.homeGoals)&&Number.isFinite(m.awayGoals)&&((m.homeTeam===a&&m.awayTeam===b)||(m.homeTeam===b&&m.awayTeam===a))).sort((x,y)=>(x.date||'').localeCompare(y.date||''));
+ let aw=0,bw=0,dr=0;
+ h2h.forEach(m=>{if(m.homeGoals===m.awayGoals)dr++;else{const winner=m.homeGoals>m.awayGoals?m.homeTeam:m.awayTeam;if(winner===a)aw++;else bw++;}});
+ $('compareSummary').innerHTML=`<b>خلاصه آماری تاریخچه موجود</b><p class="hint">${a}: ${A.hist.length} مسابقه ثبت‌شده · ${b}: ${B.hist.length} مسابقه ثبت‌شده</p><p class="hint">دیدارهای رودررو: ${h2h.length} مسابقه · برد ${a}: ${aw} · مساوی: ${dr} · برد ${b}: ${bw}</p><p class="hint">این اعداد فقط نتایج گذشته را توصیف می‌کنند؛ از آن‌ها نمی‌توان نتیجه مسابقه آینده یا احتمال برد، مساوی و باخت را به‌طور قطعی استنتاج کرد.</p>`;
+ $('h2hBody').innerHTML=h2h.length?h2h.slice(-10).reverse().map(m=>`<tr><td>${esc((m.date||'').slice(0,10))}</td><td>${esc(m.homeTeam)}</td><td class="score">${m.homeGoals} : ${m.awayGoals}</td><td>${esc(m.awayTeam)}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">در داده‌های فعلی، دیدار رودرروی ثبت‌شده‌ای پیدا نشد.</td></tr>';
+}
+
+$('refreshBtn').onclick=load;$('demoBtn').onclick=sample;$('uploadBtn').onclick=upload;$('teamSelect').onchange=showTeam;$('compareBtn').onclick=compareTeams;
+</script></body></html>
